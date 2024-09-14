@@ -104,3 +104,44 @@ export const getGradesAndAverages = async (account: PronoteAccount, periodName: 
 };
 
 export const buildLocalID = (g: pronote.Grade): string => `${g.subject.name}:${g.date.getTime()}/${g.comment || "none"}`;
+
+export type Competency = {
+  skillName: string;
+  subjectName: string;
+  skillLevel: string;
+  evaluationDate: Date;
+};
+
+export const getCompetencies = async (
+  account: PronoteAccount,
+  periodName: string
+): Promise<Competency[]> => {
+  if (!account.instance) {
+    throw new ErrorServiceUnauthenticated("pronote");
+  }
+
+  const tab = account.instance.userResource.tabs.get(pronote.TabLocation.Evaluations);
+  if (!tab) {
+    throw new Error("Impossible de récupérer l'onglet 'Évaluations' dans PRONOTE.");
+  }
+
+  const selectedPeriod = tab.periods.find((period) => period.name === periodName);
+  if (!selectedPeriod) {
+    throw new Error(`La période "${periodName}" n'a pas été trouvée.`);
+  }
+
+  info(`Récupération des compétences pour la période: ${selectedPeriod.name}`, "pronote");
+
+  const evaluations = await pronote.evaluations(account.instance, selectedPeriod);
+
+  const competencies: Competency[] = evaluations.flatMap((evaluation) =>
+    evaluation.skills.map((skill) => ({
+      skillName: skill.itemName || "Compétence inconnue",
+      subjectName: evaluation.name,
+      skillLevel: skill.level.toString(),
+      evaluationDate: evaluation.date,
+    }))
+  );
+
+  return competencies;
+};
