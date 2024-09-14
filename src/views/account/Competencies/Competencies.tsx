@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { NativeText, NativeList, NativeItem, NativeListHeader } from "@/components/Global/NativeComponents";
@@ -17,30 +17,36 @@ const Competencies: Screen<"Competencies"> = ({ navigation, route }) => {
   const [periods, setPeriods] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState("");
 
-  useEffect(() => {
+  const fetchPeriods = useCallback(async () => {
     if (account) {
-      const fetchPeriods = async () => {
+      try {
         const { periods, default: defaultPeriod } = await getGradesPeriods(account);
         setPeriods(periods);
         setSelectedPeriod(defaultPeriod);
-      };
-      fetchPeriods();
+      } catch (error) {
+        console.error("Error fetching periods:", error);
+      }
     }
   }, [account]);
 
-  useEffect(() => {
+  const fetchCompetencies = useCallback(async () => {
     if (account && selectedPeriod) {
-      const fetchCompetencies = async () => {
-        try {
-          const data = await getCompetencies(account, selectedPeriod);
-          setCompetencies(data);
-        } catch (error) {
-          console.error("Error fetching competencies:", error);
-        }
-      };
-      fetchCompetencies();
+      try {
+        const data = await getCompetencies(account, selectedPeriod);
+        setCompetencies(data);
+      } catch (error) {
+        console.error("Error fetching competencies:", error);
+      }
     }
   }, [account, selectedPeriod]);
+
+  useEffect(() => {
+    fetchPeriods();
+  }, [fetchPeriods]);
+
+  useEffect(() => {
+    fetchCompetencies();
+  }, [fetchCompetencies]);
 
   return (
     <ScrollView style={styles.container}>
