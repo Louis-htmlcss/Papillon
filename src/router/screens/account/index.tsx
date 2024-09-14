@@ -57,7 +57,7 @@ export const screens = [
   createScreen("Competencies", Competencies, { // Ajout du nouvel onglet Compétences
     headerTitle: "Compétences",
     tabBarLabel: "Compétences",
-    tabBarLottie: require("@/../assets/lottie/tab_competencies.json"), // Assurez-vous d'avoir l'animation Lottie appropriée
+    tabBarLottie: require("@/../assets/lottie/tab_pizza.json"), // Assurez-vous d'avoir l'animation Lottie appropriée
   }),
 ] as Array<ReturnType<typeof createScreen>>;
 
