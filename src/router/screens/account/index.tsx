@@ -8,6 +8,7 @@ import Grades from "@/views/account/Grades/Grades";
 import Attendance from "@/views/account/Attendance/Attendance";
 import Messages from "@/views/account/Chat/Messages";
 import PlaceholderScreen from "@/views/account/Home/PlaceholderScreen";
+import Competencies from "@/views/account/Competencies/Competencies"; // Import de la nouvelle vue Compétences
 
 export const screens = [
   createScreen("Home", () => <HomeStackScreen accountScreens={screens} />, {
@@ -52,6 +53,11 @@ export const screens = [
     headerTitle: "Cantine",
     tabBarLabel: "Cantine",
     tabBarLottie: require("@/../assets/lottie/tab_pizza.json"),
+  }),
+  createScreen("Competencies", Competencies, { // Ajout du nouvel onglet Compétences
+    headerTitle: "Compétences",
+    tabBarLabel: "Compétences",
+    tabBarLottie: require("@/../assets/lottie/tab_competencies.json"), // Assurez-vous d'avoir l'animation Lottie appropriée
   }),
 ] as Array<ReturnType<typeof createScreen>>;
 
