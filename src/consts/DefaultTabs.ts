@@ -1,4 +1,3 @@
-
 export const defaultTabs = [
   {
     tab: "Home",
@@ -48,6 +47,13 @@ export const defaultTabs = [
     label: "Messages",
     description: "Votre messagerie scolaire",
     icon: require("@/../assets/lottie/tab_chat.json"),
+    enabled: true,
+  },
+  {
+    tab: "Competencies",
+    label: "Compétences",
+    description: "Consultez vos compétences et leur niveau de maîtrise",
+    icon: require("@/../assets/lottie/tab_chart.json"),
     enabled: true,
   },
 ] as const;
