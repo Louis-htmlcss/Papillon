@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { NativeText, NativeList, NativeItem, NativeListHeader } from "@/components/Global/NativeComponents";
 import { Screen } from "@/router/helpers/types";
 import { useCurrentAccount } from "@/stores/account";
-import { TabAnimatedTitle } from "@/components/Global/AnimatedTitle";
 import { BarChart2 } from "lucide-react-native";
 import { getCompetencies } from "@/services/pronote/grades";
 import { getGradesPeriods } from "@/services/grades";
@@ -42,12 +41,6 @@ const Competencies: Screen<"Competencies"> = ({ navigation, route }) => {
       fetchCompetencies();
     }
   }, [account, selectedPeriod]);
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      ...TabAnimatedTitle({ theme, route, navigation }),
-    });
-  }, [navigation, route.params, theme.colors.text]);
 
   return (
     <ScrollView style={styles.container}>
