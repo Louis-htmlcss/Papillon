@@ -4,7 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import { NativeText, NativeList, NativeItem, NativeListHeader } from "@/components/Global/NativeComponents";
 import { Screen } from "@/router/helpers/types";
 import { useCurrentAccount } from "@/stores/account";
-import { TabAnimatedTitle } from "@/components/Global/AnimatedTitle";
+import { AnimatedTitle } from "@/components/Global/AnimatedTitle";
 import { BarChart2 } from "lucide-react-native";
 import * as pronote from "@/lib/pronote";
 import { useSession } from "@/stores/session";
@@ -51,7 +51,14 @@ const Competencies: Screen<"Competencies"> = ({ navigation, route }) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      ...TabAnimatedTitle({ theme, route, navigation }),
+      headerTitle: () => (
+        <AnimatedTitle
+          title="Compétences"
+          theme={theme}
+          route={route}
+          navigation={navigation}
+        />
+      ),
     });
   }, [navigation, route.params, theme.colors.text]);
 
