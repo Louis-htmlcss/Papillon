@@ -104,3 +104,28 @@ export const getGradesAndAverages = async (account: PronoteAccount, periodName: 
 };
 
 export const buildLocalID = (g: pronote.Grade): string => `${g.subject.name}:${g.date.getTime()}/${g.comment || "none"}`;
+
+export const getCompetencies = async (account: PronoteAccount, periodName: string): Promise<any[]> => {
+  const tab = getTab(account);
+  const selectedPeriod = tab.periods.find((period) => period.name === periodName);
+
+  if (!selectedPeriod) {
+    throw new Error(`Period "${periodName}" not found`);
+  }
+
+  const evaluations = await pronote.evaluations(account.instance!, selectedPeriod);
+
+  return evaluations.flatMap(evaluation =>
+    evaluation.skills.map(skill => ({
+      subjectName: evaluation.subject.name,
+      evaluationName: evaluation.name,
+      evaluationDate: evaluation.date,
+      skillName: skill.itemName,
+      skillLevel: skill.level,
+      skillAbbreviation: skill.abbreviation,
+      skillCoefficient: skill.coefficient,
+      pillarName: skill.pillarName,
+      domainName: skill.domainName
+    }))
+  );
+};

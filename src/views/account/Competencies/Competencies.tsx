@@ -4,67 +4,63 @@ import { useTheme } from "@react-navigation/native";
 import { NativeText, NativeList, NativeItem, NativeListHeader } from "@/components/Global/NativeComponents";
 import { Screen } from "@/router/helpers/types";
 import { useCurrentAccount } from "@/stores/account";
+import { TabAnimatedTitle } from "@/components/Global/AnimatedTitle";
 import { BarChart2 } from "lucide-react-native";
-import * as pronote from "@/lib/pronote";
-import { useSession } from "@/stores/session";
+import { getCompetencies } from "@/services/pronote/grades";
+import { getGradesPeriods } from "@/services/grades";
 
 const Competencies: Screen<"Competencies"> = ({ navigation, route }) => {
   const theme = useTheme();
   const { colors } = theme;
   const account = useCurrentAccount(store => store.account);
-  const session = useSession(store => store.session);
 
   const [competencies, setCompetencies] = useState([]);
+  const [periods, setPeriods] = useState([]);
+  const [selectedPeriod, setSelectedPeriod] = useState("");
 
   useEffect(() => {
-    const fetchCompetencies = async () => {
-      if (!session) return;
+    if (account) {
+      const fetchPeriods = async () => {
+        const { periods, default: defaultPeriod } = await getGradesPeriods(account);
+        setPeriods(periods);
+        setSelectedPeriod(defaultPeriod);
+      };
+      fetchPeriods();
+    }
+  }, [account]);
 
-      try {
-        const tab = session.userResource.tabs.get(pronote.TabLocation.Evaluations);
-        if (!tab) throw new Error("Cannot retrieve periods for the evaluations tab");
-
-        const selectedPeriod = tab.periods[0]; // Assuming we want the first period
-
-        const evaluations = await pronote.evaluations(session, selectedPeriod);
-
-        const allSkills = evaluations.flatMap(evaluation => evaluation.skills);
-        const uniqueSkills = Array.from(new Set(allSkills.map(skill => skill.domainName)))
-          .map(domainName => {
-            const skill = allSkills.find(s => s.domainName === domainName);
-            return {
-              id: domainName,
-              name: domainName,
-              level: skill ? skill.level : "Non évalué",
-            };
-          });
-
-        setCompetencies(uniqueSkills);
-      } catch (error) {
-        console.error("Error fetching competencies:", error);
-      }
-    };
-
-    fetchCompetencies();
-  }, [session]);
+  useEffect(() => {
+    if (account && selectedPeriod) {
+      const fetchCompetencies = async () => {
+        try {
+          const data = await getCompetencies(account, selectedPeriod);
+          setCompetencies(data);
+        } catch (error) {
+          console.error("Error fetching competencies:", error);
+        }
+      };
+      fetchCompetencies();
+    }
+  }, [account, selectedPeriod]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Compétences",
+      ...TabAnimatedTitle({ theme, route, navigation }),
     });
-  }, [navigation]);
+  }, [navigation, route.params, theme.colors.text]);
 
   return (
     <ScrollView style={styles.container}>
       <NativeListHeader label="Compétences" />
       <NativeList>
-        {competencies.map((competency) => (
+        {competencies.map((competency, index) => (
           <NativeItem
-            key={competency.id}
+            key={index}
             icon={<BarChart2 color={colors.text} />}
           >
-            <NativeText variant="title">{competency.name}</NativeText>
-            <NativeText variant="subtitle">{competency.level}</NativeText>
+            <NativeText variant="title">{competency.skillName}</NativeText>
+            <NativeText variant="subtitle">{`${competency.subjectName} - ${competency.skillLevel}`}</NativeText>
+            <NativeText variant="subtitle">{new Date(competency.evaluationDate).toLocaleDateString()}</NativeText>
           </NativeItem>
         ))}
       </NativeList>
