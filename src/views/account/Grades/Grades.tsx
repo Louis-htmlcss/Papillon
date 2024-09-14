@@ -4,7 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import Reanimated from "react-native-reanimated";
 import { useCurrentAccount } from "@/stores/account";
 import * as pronote from "@/services/pronote"; // Assurez-vous que le chemin est correct
-import GradesElement from "./Elements/GradesElement"; // Utilisez le composant existant
+import GradesElement from "./Elements/GradesElements"; // Utilisez le composant existant
 import { getSkills } from "@/services/pronote/Skills";
 
 const Grades: React.FC = ({ navigation }) => {
