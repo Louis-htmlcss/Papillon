@@ -10,8 +10,9 @@ import PapillonCheckbox from "@/components/Global/PapillonCheckbox";
 import Reanimated, { LinearTransition } from "react-native-reanimated";
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { animPapillon } from "@/utils/ui/animations";
+import { StyleSheet } from "react-native";
 
-const HomeworkItem = ({ homework, onDonePressHandler, index, total }) => {
+const HomeworkItem = ({ homework, onDonePressHandler, index, total, searchTerms }) => {
   const theme = useTheme();
   const [subjectData, setSubjectData] = useState(getSubjectData(homework.subject));
 
@@ -46,11 +47,26 @@ const HomeworkItem = ({ homework, onDonePressHandler, index, total }) => {
 
   const [needsExpansion, setNeedsExpansion] = useState(parsedContent.length > 100);
 
+  const highlightSearchTerms = (text) => {
+    if (!searchTerms) return text;
+
+    const parts = text.split(new RegExp(`(${searchTerms})`, "gi"));
+    return (
+      <Text>
+        {parts.map((part, i) =>
+          part.toLowerCase() === searchTerms.toLowerCase() ? (
+            <Text key={i} style={styles.highlightedText}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
+  };
+
   return (
     <NativeItem
       animated
-      onPress={needsExpansion ? () => setExpanded(!expanded) : undefined}
-      chevron={false}
       key={homework.content}
       entering={FadeIn}
       exiting={FadeOut}
@@ -79,17 +95,12 @@ const HomeworkItem = ({ homework, onDonePressHandler, index, total }) => {
           <NativeText variant="overtitle" style={{ color: subjectData.color }} numberOfLines={1}>
             {subjectData.pretty}
           </NativeText>
-          <Reanimated.View
-            layout={animPapillon(LinearTransition)}
-            key={parsedContent + expanded}
-            entering={expanded && FadeIn.duration(200)}
-            exiting={FadeOut.duration(200).delay(50)}
-          >
+          <Reanimated.View layout={animPapillon(LinearTransition)}>
             <NativeText
               variant="default"
               numberOfLines={expanded ? undefined : 3}
             >
-              {parsedContent}
+              {highlightSearchTerms(parsedContent)}
             </NativeText>
           </Reanimated.View>
         </Reanimated.View>
@@ -114,5 +125,14 @@ const HomeworkItem = ({ homework, onDonePressHandler, index, total }) => {
     </NativeItem>
   );
 };
+
+const styles = StyleSheet.create({
+  highlightedText: {
+    backgroundColor: "transparent",
+    color: theme.colors.primary,
+    fontWeight: "bold",
+    textDecorationLine: "underline",
+  },
+});
 
 export default HomeworkItem;
