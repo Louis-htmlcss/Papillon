@@ -47,6 +47,16 @@ const HomeworkItem = ({ homework, onDonePressHandler, index, total, searchTerms 
 
   const [needsExpansion, setNeedsExpansion] = useState(parsedContent.length > 100);
 
+  const styles = StyleSheet.create({
+    highlightedText: (theme) => ({
+      backgroundColor: theme.colors.primary + "20", // Utilise la couleur primaire avec une faible opacité
+      color: theme.colors.primary,
+      fontFamily: "semibold", // Utilise une police légèrement plus grasse
+      borderRadius: 3, // Ajoute un léger arrondi
+      paddingHorizontal: 2, // Ajoute un peu d'espace horizontal
+    }),
+  });
+
   const highlightSearchTerms = (text) => {
     if (!searchTerms) return text;
 
@@ -55,7 +65,7 @@ const HomeworkItem = ({ homework, onDonePressHandler, index, total, searchTerms 
       <Text>
         {parts.map((part, i) =>
           part.toLowerCase() === searchTerms.toLowerCase() ? (
-            <Text key={i} style={styles.highlightedText}>{part}</Text>
+            <Text key={i} style={styles.highlightedText(theme)}>{part}</Text>
           ) : (
             part
           )
@@ -125,14 +135,5 @@ const HomeworkItem = ({ homework, onDonePressHandler, index, total, searchTerms 
     </NativeItem>
   );
 };
-
-const styles = StyleSheet.create({
-  highlightedText: {
-    backgroundColor: "transparent",
-    color: theme.colors.primary,
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
-});
 
 export default HomeworkItem;
