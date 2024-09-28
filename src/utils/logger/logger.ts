@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const format: string = "[%TYPE%][%DATE%][%FROM%] %MESSAGE%";
+const format = "[%TYPE%][%DATE%][%FROM%] %MESSAGE%";
 const type_list = [
   "LOG",
   "ERROR",

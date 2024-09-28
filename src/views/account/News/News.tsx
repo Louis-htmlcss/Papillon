@@ -36,7 +36,7 @@ const NewsScreen: Screen<"News"> = ({ route, navigation }) => {
     });
   }, [navigation, route.params, theme.colors.text]);
 
-  const fetchData = useCallback(async (hidden: boolean = false) => {
+  const fetchData = useCallback(async (hidden = false) => {
     if (!hidden) setIsLoading(true);
     await updateNewsInCache(account);
     setIsLoading(false);
