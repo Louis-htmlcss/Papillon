@@ -8,7 +8,7 @@ import { fetchIcalData } from "./local/ical";
 /**
  * Updates the state and cache for the timetable of given week number.
  */
-export async function updateTimetableForWeekInCache <T extends Account> (account: T, epochWeekNumber: number, force: boolean = false): Promise<void> {
+export async function updateTimetableForWeekInCache <T extends Account> (account: T, epochWeekNumber: number, force = false): Promise<void> {
   switch (account.service) {
     case AccountService.Pronote: {
       const { getTimetableForWeek } = await import("./pronote/timetable");

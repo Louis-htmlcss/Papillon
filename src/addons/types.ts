@@ -54,14 +54,14 @@ export interface AddonPlacement {
 }
 
 export class AddonManifest {
-  name: string = "";
-  author: string = "";
+  name = "";
+  author = "";
   description?: string;
   icon?: string;
-  version: string = "";
+  version = "";
   license?: string;
-  minAppVersion: string = "7.0.0";
-  development: boolean = false;
+  minAppVersion = "7.0.0";
+  development = false;
   screenshot: Array<string> = [];
   placement: Array<AddonPlacement> = [];
   permissions: Array<AddonPermission> = [];

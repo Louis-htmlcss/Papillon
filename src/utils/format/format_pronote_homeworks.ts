@@ -10,7 +10,7 @@ function parse_homeworks (content: string): string {
 
   const ignoredTags: Set<string> = new Set(["div", "span", "style", "script", "footer", "header"]);
 
-  const tagRegex: RegExp = /<\/?([a-zA-Z]+)(?:\s[^>]*)?>|([^<]+)/g;
+  const tagRegex = /<\/?([a-zA-Z]+)(?:\s[^>]*)?>|([^<]+)/g;
 
   const htmlEntities: { [key: string]: string } = {
     "&nbsp;": " ",
@@ -23,7 +23,7 @@ function parse_homeworks (content: string): string {
       .replace(/&([a-zA-Z]+);/g, (match: string) => htmlEntities[match] || match);
   }
 
-  let result: string = "";
+  let result = "";
   let match: RegExpExecArray | null;
 
   while ((match = tagRegex.exec(content)) !== null) {
