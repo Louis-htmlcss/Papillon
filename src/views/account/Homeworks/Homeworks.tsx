@@ -153,14 +153,18 @@ const WeekView = ({ route, navigation }) => {
       const day = `${dayName} ${formattedDate}`;
 
       if (!acc[day]) {
-        acc[day] = [curr];
+        acc[day] = {};
+      }
+
+      if (!acc[day][curr.subject]) {
+        acc[day][curr.subject] = [curr];
       } else {
-        acc[day].push(curr);
+        acc[day][curr.subject].push(curr);
       }
 
       // filter homeworks by search terms
       if (searchTerms.length > 0) {
-        acc[day] = acc[day].filter(homework => {
+        acc[day][curr.subject] = acc[day][curr.subject].filter(homework => {
           const content = homework.content.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
           return content.includes(searchTerms.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
         });
@@ -168,27 +172,35 @@ const WeekView = ({ route, navigation }) => {
 
       // if hideDone is enabled, filter out the done homeworks
       if (hideDone) {
-        acc[day] = acc[day].filter(homework => !homework.done);
+        acc[day][curr.subject] = acc[day][curr.subject].filter(homework => !homework.done);
+      }
+
+      // remove all empty subjects
+      if (acc[day][curr.subject].length === 0) {
+        delete acc[day][curr.subject];
       }
 
       // remove all empty days
-      if (acc[day].length === 0) {
+      if (Object.keys(acc[day]).length === 0) {
         delete acc[day];
       }
 
       return acc;
-    }, {} as Record<string, Homework[]>);
+    }, {} as Record<string, Record<string, Homework[]>>);
 
     // Moved completed homework to the bottom of the day
     const sortedGroupedHomework = Object.keys(groupedHomework).reduce((acc, day) => {
-      acc[day] = groupedHomework[day].sort((a, b) => {
-        if (a.done === b.done) {
-          return 0; // Keep the current order if both are either completed or not completed
-        }
-        return a.done ? 1 : -1; // Unfinished at the top, finished at the bottom
-      });
+      acc[day] = Object.keys(groupedHomework[day]).reduce((subjectAcc, subject) => {
+        subjectAcc[subject] = groupedHomework[day][subject].sort((a, b) => {
+          if (a.done === b.done) {
+            return 0; // Keep the current order if both are either completed or not completed
+          }
+          return a.done ? 1 : -1; // Unfinished at the top, finished at the bottom
+        });
+        return subjectAcc;
+      }, {} as Record<string, Homework[]>);
       return acc;
-    }, {} as Record<string, Homework[]>);
+    }, {} as Record<string, Record<string, Homework[]>>);
 
     return (
       <ScrollView
@@ -206,7 +218,7 @@ const WeekView = ({ route, navigation }) => {
           />
         }
       >
-        {groupedHomework && Object.keys(groupedHomework).map((day, index) => (
+        {Object.keys(sortedGroupedHomework).map((day, index) => (
           <Reanimated.View
             key={day}
             entering={animPapillon(FadeInUp)}
@@ -215,25 +227,33 @@ const WeekView = ({ route, navigation }) => {
           >
             <NativeListHeader animated label={day} />
 
-            <NativeList animated>
-              {groupedHomework[day].map((homework, idx) => (
-                <HomeworkItem
-                  key={homework.id}
-                  index={idx}
-                  navigation={navigation}
-                  total={groupedHomework[day].length}
-                  homework={homework}
-                  onDonePressHandler={async () => {
-                    await toggleHomeworkState(account, homework);
-                    await updateHomeworks(true, false, false);
-                  }}
-                />
-              ))}
-            </NativeList>
+            {Object.keys(sortedGroupedHomework[day]).map((subject, idx) => (
+              <Reanimated.View
+                key={subject}
+                style={{ marginBottom: 8 }}
+                layout={animPapillon(LinearTransition)}
+              >
+                <NativeList animated>
+                  {sortedGroupedHomework[day][subject].map((homework, idx) => (
+                    <HomeworkItem
+                      key={homework.id}
+                      index={idx}
+                      navigation={navigation}
+                      total={sortedGroupedHomework[day][subject].length}
+                      homework={homework}
+                      onDonePressHandler={async () => {
+                        await toggleHomeworkState(account, homework);
+                        await updateHomeworks(true, false, false);
+                      }}
+                    />
+                  ))}
+                </NativeList>
+              </Reanimated.View>
+            ))}
           </Reanimated.View>
         ))}
 
-        {groupedHomework && Object.keys(groupedHomework).length === 0 &&
+        {Object.keys(sortedGroupedHomework).length === 0 &&
           <Reanimated.View
             style={{
               marginTop: 24,
